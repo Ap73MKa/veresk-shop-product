@@ -12,10 +12,6 @@ export default defineNuxtConfig({
     }
   },
 
-  nitro: {
-    preset: "bun"
-  },
-
   srcDir: "src",
   vite: {
     plugins: [tailwindcss()],
