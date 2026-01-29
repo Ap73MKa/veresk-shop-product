@@ -1,0 +1,5 @@
+export { default as ProductDimensionRoot } from "./product-dimension-root.vue"
+export { default as ProductDimensionItem } from "./product-dimension-item.vue"
+export { default as ProductDimensionList } from "./product-dimension-list.vue"
+export { default as ProductDimensionTitle } from "./product-dimension-title.vue"
+export { default as ProductDimensionSkeleton } from "./product-dimension-skeleton.vue"

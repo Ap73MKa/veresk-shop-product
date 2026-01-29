@@ -1,0 +1,297 @@
+schema {
+  query: Query
+  subscription: Subscription
+}
+
+type Query {
+  productById(id: ID!): Product
+  productBySlug(slug: String!): Product
+  products(
+    categorySlug: String
+    search: String
+    limit: Int
+    offset: Int
+  ): [Product!]!
+  category(slug: String!): Category
+  categories: [Category!]!
+}
+
+type Subscription {
+  product(id: ID!): Product
+}
+
+type Product {
+  id: ID!
+  slug: String!
+  name: String!
+  partNumber: Int!
+  price: Price!
+  "Важная информация (HTML formatted)"
+  info: String!
+  "Описание (HTML formatted)"
+  description: String!
+  warranty: String!
+  rating: Int!
+  installment: Installment
+
+  discount: PriceChange
+  isFreeDelivery: Boolean
+  extraTags: [Image!]
+
+  width: [Width!]!
+  height: [Height!]!
+  depth: [Depth!]!
+
+  facadeColor: [Color!]!
+  bodyColor: [Color!]!
+  recommendedColors: [ColorCombo!]!
+
+  systemGallery: [GalleryItem!]
+  userGallery: [GalleryItem!]
+
+  variant: [Variant!]!
+  schema: [Schema!]!
+  equipment: [Equipment!]!
+
+  collection: Link
+  manuals: [Link!]
+  reviews: [Review!]
+  questions: [Question!]
+
+  "Похожие товары"
+  similarProducts: [Product!]
+  "С этим товаром покупают"
+  alsoProducts: [Product!]
+  "Мебель из коллекции"
+  collectionProducts: [Product!]
+  "С этим товаром искали"
+  searched: [Link!]
+
+  isInFavourtes: Boolean
+  inCartAmount: Int
+}
+
+type Price {
+  list: Money!
+  net: Money!
+}
+
+type Money {
+  amount: Float!
+  currencyCode: CurrencyCode!
+}
+
+enum CurrencyCode {
+  RUB
+}
+
+type AbsolutePriceChange {
+  amount: Money!
+}
+
+type PercentPriceChange {
+  percent: Int!
+}
+
+union PriceChange = AbsolutePriceChange | PercentPriceChange
+
+type GalleryItem {
+  media: Media!
+  ordinalNumber: Int!
+}
+
+union Media = Image | Video
+
+type Image {
+  src: String!
+  alt: String
+}
+
+type Video {
+  source: [VideoSource!]!
+}
+
+type VideoSource {
+  src: String!
+  type: String
+}
+
+type Link {
+  url: String!
+  text: String!
+}
+
+scalar Date
+
+interface Communication {
+  id: ID!
+  user: String!
+  date: Date!
+  text: String!
+  media: [Media!]
+}
+
+type Review implements Communication {
+  id: ID!
+  user: String!
+  date: Date!
+  text: String!
+  media: [Media!]
+  rating: Rating!
+}
+
+type Question implements Communication {
+  id: ID!
+  user: String!
+  date: Date!
+  text: String!
+  media: [Media!]
+}
+
+enum Rating {
+  ONE
+  TWO
+  THREE
+  FOUR
+  FIVE
+}
+
+type Installment {
+  payment: Money!
+  period: Period!
+}
+
+type Period {
+  length: Int!
+  unit: PeriodUnit!
+}
+
+enum PeriodUnit {
+  DAY
+  WEEK
+  MONTH
+  YEAR
+}
+
+interface Option {
+  id: ID!
+  name: String!
+  media: Media
+  hint: String
+  group: OptionGroup
+}
+
+interface Priceable {
+  addedPrice: PriceChange
+}
+
+interface Selectable {
+  selected: Boolean
+}
+
+interface Countable {
+  quantity: Int
+}
+
+type Color implements Option & Priceable & Selectable {
+  id: ID!
+  name: String!
+  media: Media!
+  hint: String
+  group: OptionGroup
+  addedPrice: PriceChange
+  selected: Boolean!
+}
+
+type ColorCombo {
+  facadeColor: Color!
+  bodyColor: Color!
+}
+
+"""
+Опции
+"""
+type Variant implements Option & Priceable & Selectable {
+  id: ID!
+  name: String!
+  media: Media
+  hint: String
+  group: OptionGroup
+  addedPrice: PriceChange
+  selected: Boolean
+}
+
+"""
+Схемы наполнения
+"""
+type Schema implements Option & Priceable & Selectable {
+  id: ID!
+  name: String!
+  media: Media
+  hint: String
+  group: OptionGroup
+  addedPrice: PriceChange
+  selected: Boolean
+}
+
+"""
+Доп. комплектация
+"""
+type Equipment implements Option & Priceable & Countable {
+  id: ID!
+  name: String!
+  media: Media
+  hint: String
+  group: OptionGroup
+  addedPrice: PriceChange
+  quantity: Int
+}
+
+type OptionGroup {
+  id: ID!
+  name: String!
+}
+
+interface Dimension {
+  value: Int!
+  unit: DimensionUnit!
+  selected: Boolean
+}
+
+type Width implements Dimension & Priceable & Selectable {
+  value: Int!
+  unit: DimensionUnit!
+  addedPrice: PriceChange
+  selected: Boolean!
+}
+
+type Height implements Dimension & Priceable & Selectable {
+  value: Int!
+  unit: DimensionUnit!
+  addedPrice: PriceChange
+  selected: Boolean!
+}
+
+type Depth implements Dimension & Priceable & Selectable {
+  value: Int!
+  unit: DimensionUnit!
+  addedPrice: PriceChange
+  selected: Boolean!
+}
+
+enum DimensionUnit {
+  M
+  SM
+  MM
+}
+
+type Category {
+  id: ID!
+  slug: String!
+  name: String!
+  media: Media
+  description: String!
+  parent: Category
+  children: [Category!]!
+  products(limit: Int, offset: Int): [Product!]!
+}

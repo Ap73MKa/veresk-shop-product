@@ -1,0 +1,5 @@
+export { default as ImageSlider } from "./image-slider.vue"
+export { default as ImageSliderMain } from "./image-slider-main.vue"
+export { default as ImageSliderMainSlide } from "./image-slider-main-slide.vue"
+export { default as ImageSliderThumb } from "./image-slider-thumb.vue"
+export { default as ImageSliderThumbSlide } from "./image-slider-thumb-slide.vue"
