@@ -52,7 +52,7 @@ onUnmounted(() => window.removeEventListener("scroll", handleScroll))
           :to="{ name: 'index' }"
           class="self-center justify-self-center text-2xl font-semibold tracking-tight select-none"
         >
-          VERESK
+          ВЕРЕСК
         </NuxtLink>
 
         <div class="flex items-center justify-self-end lg:gap-2">

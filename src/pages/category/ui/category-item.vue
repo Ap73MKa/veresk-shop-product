@@ -15,7 +15,7 @@ import { BaseImage } from "~/shared/ui/base-image"
 import { byTypename } from "~/shared/lib/types"
 
 type Category = NonNullable<CategoryPageQuery["category"]>
-type Product = Category["products"][number]
+type Product = Category["products"]["edges"][number]["node"]
 
 const props = defineProps<{ product: Product }>()
 const currentImageIndex = ref(0)
@@ -56,9 +56,48 @@ const images = computed(() =>
     .map((i) => ({ src: i.src, alt: i.alt ?? props.product.name }))
 )
 
-const widthRange = getMinMax(props.product.width)
-const heightRange = getMinMax(props.product.height)
-const depthRange = getMinMax(props.product.depth)
+const dimensionAttributes = computed(
+  () =>
+    props.product.attributes.filter(
+      (item) => item.__typename === "DimensionAttribute"
+    ) ?? []
+)
+
+const widthAttribute = computed(() =>
+  dimensionAttributes.value.find((item) => item.code === "width")
+)
+
+const widthRange = computed(() =>
+  getMinMax(
+    widthAttribute.value?.options.map((item) => ({
+      value: parseFloat(item.value)
+    })) ?? []
+  )
+)
+
+const heightAttribute = computed(() =>
+  dimensionAttributes.value.find((item) => item.code === "height")
+)
+
+const heightRange = computed(() =>
+  getMinMax(
+    heightAttribute.value?.options.map((item) => ({
+      value: parseFloat(item.value)
+    })) ?? []
+  )
+)
+
+const depthAttribute = computed(() =>
+  dimensionAttributes.value.find((item) => item.code === "depth")
+)
+
+const depthRange = computed(() =>
+  getMinMax(
+    depthAttribute.value?.options.map((item) => ({
+      value: parseFloat(item.value)
+    })) ?? []
+  )
+)
 </script>
 
 <template>

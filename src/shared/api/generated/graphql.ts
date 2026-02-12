@@ -22,6 +22,28 @@ export type AbsolutePriceChange = {
   amount: Money;
 };
 
+export type Attribute = {
+  code: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  required: Scalars['Boolean']['output'];
+};
+
+export type AttributeFilter = {
+  code: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
+export type BooleanAttribute = Attribute & {
+  __typename: 'BooleanAttribute';
+  addedPrice?: Maybe<PriceChange>;
+  code: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  required: Scalars['Boolean']['output'];
+  value: Scalars['Boolean']['output'];
+};
+
 export type Category = {
   __typename: 'Category';
   children: Array<Category>;
@@ -30,31 +52,54 @@ export type Category = {
   media?: Maybe<Media>;
   name: Scalars['String']['output'];
   parent?: Maybe<Category>;
-  products: Array<Product>;
+  parentId?: Maybe<Scalars['ID']['output']>;
+  products: ProductConnection;
   slug: Scalars['String']['output'];
 };
 
 
 export type CategoryProductsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
+  filters?: InputMaybe<ProductFilters>;
+  pagination?: InputMaybe<Pagination>;
+  sort?: InputMaybe<ProductSort>;
 };
 
-export type Color = Option & Priceable & Selectable & {
-  __typename: 'Color';
+export type CategoryConnection = {
+  __typename: 'CategoryConnection';
+  edges: Array<CategoryEdge>;
+  pageInfo: PageInfo;
+};
+
+export type CategoryEdge = {
+  __typename: 'CategoryEdge';
+  cursor: Scalars['String']['output'];
+  node: Category;
+};
+
+export type CategoryFilters = {
+  parentId?: InputMaybe<Scalars['ID']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ColorAttribute = Attribute & {
+  __typename: 'ColorAttribute';
+  code: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  options: Array<ColorOption>;
+  required: Scalars['Boolean']['output'];
+};
+
+export type ColorOption = Option & {
+  __typename: 'ColorOption';
   addedPrice?: Maybe<PriceChange>;
-  group?: Maybe<OptionGroup>;
-  hint?: Maybe<Scalars['String']['output']>;
+  description: Scalars['String']['output'];
+  display: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   media: Media;
-  name: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
   selected: Scalars['Boolean']['output'];
-};
-
-export type ColorCombo = {
-  __typename: 'ColorCombo';
-  bodyColor: Color;
-  facadeColor: Color;
+  value: Scalars['String']['output'];
 };
 
 export type Communication = {
@@ -62,67 +107,70 @@ export type Communication = {
   id: Scalars['ID']['output'];
   media?: Maybe<Array<Media>>;
   text: Scalars['String']['output'];
-  user: Scalars['String']['output'];
+  userId: Scalars['ID']['output'];
+  userName: Scalars['String']['output'];
 };
 
-export type Countable = {
-  quantity?: Maybe<Scalars['Int']['output']>;
+export type Compartment = {
+  __typename: 'Compartment';
+  id: Scalars['ID']['output'];
+  options: Array<VariantOption>;
+  order: Scalars['Int']['output'];
+  size: Scalars['Float']['output'];
+  unit: Scalars['String']['output'];
 };
 
 export enum CurrencyCode {
-  Rub = 'RUB'
+  Eur = 'EUR',
+  Rub = 'RUB',
+  Usd = 'USD'
 }
 
-export type Depth = Dimension & Priceable & Selectable & {
-  __typename: 'Depth';
-  addedPrice?: Maybe<PriceChange>;
-  selected: Scalars['Boolean']['output'];
-  unit: DimensionUnit;
-  value: Scalars['Int']['output'];
+export type DimensionAttribute = Attribute & {
+  __typename: 'DimensionAttribute';
+  code: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  options: Array<DimensionOption>;
+  required: Scalars['Boolean']['output'];
 };
 
-export type Dimension = {
-  selected?: Maybe<Scalars['Boolean']['output']>;
+export type DimensionOption = Option & {
+  __typename: 'DimensionOption';
+  display: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  selected: Scalars['Boolean']['output'];
   unit: DimensionUnit;
-  value: Scalars['Int']['output'];
+  value: Scalars['String']['output'];
 };
 
 export enum DimensionUnit {
+  Cm = 'CM',
   M = 'M',
-  Mm = 'MM',
-  Sm = 'SM'
+  Mm = 'MM'
 }
 
-/** Доп. комплектация */
-export type Equipment = Countable & Option & Priceable & {
-  __typename: 'Equipment';
-  addedPrice?: Maybe<PriceChange>;
-  group?: Maybe<OptionGroup>;
-  hint?: Maybe<Scalars['String']['output']>;
+export type EquipmentAttribute = Attribute & {
+  __typename: 'EquipmentAttribute';
+  code: Scalars['String']['output'];
   id: Scalars['ID']['output'];
-  media?: Maybe<Media>;
   name: Scalars['String']['output'];
-  quantity?: Maybe<Scalars['Int']['output']>;
+  options: Array<MultiSelectOption>;
+  required: Scalars['Boolean']['output'];
 };
 
 export type GalleryItem = {
   __typename: 'GalleryItem';
   media: Media;
-  ordinalNumber: Scalars['Int']['output'];
-};
-
-export type Height = Dimension & Priceable & Selectable & {
-  __typename: 'Height';
-  addedPrice?: Maybe<PriceChange>;
-  selected: Scalars['Boolean']['output'];
-  unit: DimensionUnit;
-  value: Scalars['Int']['output'];
+  order: Scalars['Int']['output'];
 };
 
 export type Image = {
   __typename: 'Image';
   alt?: Maybe<Scalars['String']['output']>;
+  height?: Maybe<Scalars['Int']['output']>;
   src: Scalars['String']['output'];
+  width?: Maybe<Scalars['Int']['output']>;
 };
 
 export type Installment = {
@@ -145,18 +193,61 @@ export type Money = {
   currencyCode: CurrencyCode;
 };
 
-export type Option = {
-  group?: Maybe<OptionGroup>;
-  hint?: Maybe<Scalars['String']['output']>;
+export type MultiSelectAttribute = Attribute & {
+  __typename: 'MultiSelectAttribute';
+  code: Scalars['String']['output'];
   id: Scalars['ID']['output'];
-  media?: Maybe<Media>;
   name: Scalars['String']['output'];
+  options: Array<MultiSelectOption>;
+  required: Scalars['Boolean']['output'];
 };
 
-export type OptionGroup = {
-  __typename: 'OptionGroup';
+export type MultiSelectOption = Option & {
+  __typename: 'MultiSelectOption';
+  addedPrice?: Maybe<PriceChange>;
+  description: Scalars['String']['output'];
+  display: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  maxQuantity: Scalars['Int']['output'];
+  media: Media;
+  minQuantity: Scalars['Int']['output'];
+  order: Scalars['Int']['output'];
+  quantity: Scalars['Int']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type NumberAttribute = Attribute & {
+  __typename: 'NumberAttribute';
+  addedPrice?: Maybe<PriceChange>;
+  code: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  max: Scalars['Float']['output'];
+  min: Scalars['Float']['output'];
   name: Scalars['String']['output'];
+  required: Scalars['Boolean']['output'];
+  step: Scalars['Float']['output'];
+  unit: Scalars['String']['output'];
+  value: Scalars['Float']['output'];
+};
+
+export type Option = {
+  display: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type PageInfo = {
+  __typename: 'PageInfo';
+  endCursor?: Maybe<Scalars['String']['output']>;
+  hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
+  startCursor?: Maybe<Scalars['String']['output']>;
+};
+
+export type Pagination = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type PercentPriceChange = {
@@ -185,61 +276,76 @@ export type Price = {
 
 export type PriceChange = AbsolutePriceChange | PercentPriceChange;
 
-export type Priceable = {
-  addedPrice?: Maybe<PriceChange>;
-};
-
 export type Product = {
   __typename: 'Product';
-  /** С этим товаром покупают */
-  alsoProducts?: Maybe<Array<Product>>;
-  bodyColor: Array<Color>;
+  alsoProducts: Array<Product>;
+  attributes: Array<Attribute>;
   collection?: Maybe<Link>;
-  /** Мебель из коллекции */
-  collectionProducts?: Maybe<Array<Product>>;
-  depth: Array<Depth>;
-  /** Описание (HTML formatted) */
+  collectionProducts: Array<Product>;
   description: Scalars['String']['output'];
   discount?: Maybe<PriceChange>;
-  equipment: Array<Equipment>;
   extraTags?: Maybe<Array<Image>>;
-  facadeColor: Array<Color>;
-  height: Array<Height>;
   id: Scalars['ID']['output'];
-  inCartAmount?: Maybe<Scalars['Int']['output']>;
-  /** Важная информация (HTML formatted) */
   info: Scalars['String']['output'];
   installment?: Maybe<Installment>;
-  isFreeDelivery?: Maybe<Scalars['Boolean']['output']>;
-  isInFavourtes?: Maybe<Scalars['Boolean']['output']>;
-  manuals?: Maybe<Array<Link>>;
+  isFreeDelivery: Scalars['Boolean']['output'];
+  manuals: Array<Link>;
   name: Scalars['String']['output'];
   partNumber: Scalars['Int']['output'];
   price: Price;
-  questions?: Maybe<Array<Question>>;
-  rating: Scalars['Int']['output'];
-  recommendedColors: Array<ColorCombo>;
-  reviews?: Maybe<Array<Review>>;
-  schema: Array<Schema>;
-  /** С этим товаром искали */
-  searched?: Maybe<Array<Link>>;
-  /** Похожие товары */
-  similarProducts?: Maybe<Array<Product>>;
+  questions: Array<Question>;
+  rating: Scalars['Float']['output'];
+  reviews: Array<Review>;
+  searched: Array<Link>;
+  similarProducts: Array<Product>;
   slug: Scalars['String']['output'];
-  systemGallery?: Maybe<Array<GalleryItem>>;
+  systemGallery: Array<GalleryItem>;
   userGallery?: Maybe<Array<GalleryItem>>;
-  variant: Array<Variant>;
   warranty: Scalars['String']['output'];
-  width: Array<Width>;
 };
+
+export type ProductConnection = {
+  __typename: 'ProductConnection';
+  edges: Array<ProductEdge>;
+  pageInfo: PageInfo;
+};
+
+export type ProductEdge = {
+  __typename: 'ProductEdge';
+  cursor: Scalars['String']['output'];
+  node: Product;
+};
+
+export type ProductFilters = {
+  attributes?: InputMaybe<Array<AttributeFilter>>;
+  categorySlug?: InputMaybe<Scalars['String']['input']>;
+  maxPrice?: InputMaybe<Scalars['Float']['input']>;
+  minPrice?: InputMaybe<Scalars['Float']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum ProductSort {
+  CreatedAtDesc = 'CREATED_AT_DESC',
+  NameAsc = 'NAME_ASC',
+  NameDesc = 'NAME_DESC',
+  PriceAsc = 'PRICE_ASC',
+  PriceDesc = 'PRICE_DESC',
+  RatingDesc = 'RATING_DESC'
+}
 
 export type Query = {
   __typename: 'Query';
-  categories: Array<Category>;
+  categories: CategoryConnection;
   category?: Maybe<Category>;
   productById?: Maybe<Product>;
   productBySlug?: Maybe<Product>;
-  products: Array<Product>;
+  products: ProductConnection;
+};
+
+
+export type QueryCategoriesArgs = {
+  filters?: InputMaybe<CategoryFilters>;
+  pagination?: InputMaybe<Pagination>;
 };
 
 
@@ -259,10 +365,9 @@ export type QueryProductBySlugArgs = {
 
 
 export type QueryProductsArgs = {
-  categorySlug?: InputMaybe<Scalars['String']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  search?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<ProductFilters>;
+  pagination?: InputMaybe<Pagination>;
+  sort?: InputMaybe<ProductSort>;
 };
 
 export type Question = Communication & {
@@ -270,8 +375,10 @@ export type Question = Communication & {
   date: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
   media?: Maybe<Array<Media>>;
+  rating?: Maybe<Rating>;
   text: Scalars['String']['output'];
-  user: Scalars['String']['output'];
+  userId: Scalars['ID']['output'];
+  userName: Scalars['String']['output'];
 };
 
 export enum Rating {
@@ -289,23 +396,29 @@ export type Review = Communication & {
   media?: Maybe<Array<Media>>;
   rating: Rating;
   text: Scalars['String']['output'];
-  user: Scalars['String']['output'];
+  userId: Scalars['ID']['output'];
+  userName: Scalars['String']['output'];
 };
 
-/** Схемы наполнения */
-export type Schema = Option & Priceable & Selectable & {
-  __typename: 'Schema';
-  addedPrice?: Maybe<PriceChange>;
-  group?: Maybe<OptionGroup>;
-  hint?: Maybe<Scalars['String']['output']>;
+export type SelectAttribute = Attribute & {
+  __typename: 'SelectAttribute';
+  code: Scalars['String']['output'];
   id: Scalars['ID']['output'];
-  media?: Maybe<Media>;
   name: Scalars['String']['output'];
-  selected?: Maybe<Scalars['Boolean']['output']>;
+  options: Array<SelectOption>;
+  required: Scalars['Boolean']['output'];
 };
 
-export type Selectable = {
-  selected?: Maybe<Scalars['Boolean']['output']>;
+export type SelectOption = Option & {
+  __typename: 'SelectOption';
+  addedPrice?: Maybe<PriceChange>;
+  description: Scalars['String']['output'];
+  display: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  media: Media;
+  order: Scalars['Int']['output'];
+  selected: Scalars['Boolean']['output'];
+  value: Scalars['String']['output'];
 };
 
 export type Subscription = {
@@ -318,16 +431,27 @@ export type SubscriptionProductArgs = {
   id: Scalars['ID']['input'];
 };
 
-/** Опции */
-export type Variant = Option & Priceable & Selectable & {
-  __typename: 'Variant';
-  addedPrice?: Maybe<PriceChange>;
-  group?: Maybe<OptionGroup>;
-  hint?: Maybe<Scalars['String']['output']>;
+export type VariantAttribute = Attribute & {
+  __typename: 'VariantAttribute';
+  code: Scalars['String']['output'];
+  compartments: Array<Compartment>;
   id: Scalars['ID']['output'];
-  media?: Maybe<Media>;
   name: Scalars['String']['output'];
-  selected?: Maybe<Scalars['Boolean']['output']>;
+  required: Scalars['Boolean']['output'];
+};
+
+export type VariantOption = Option & {
+  __typename: 'VariantOption';
+  addedPrice: PriceChange;
+  description: Scalars['String']['output'];
+  display: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  maxQuantity: Scalars['Int']['output'];
+  media: Media;
+  minQuantity: Scalars['Int']['output'];
+  order: Scalars['Int']['output'];
+  quantity: Scalars['Int']['output'];
+  value: Scalars['String']['output'];
 };
 
 export type Video = {
@@ -338,84 +462,110 @@ export type Video = {
 export type VideoSource = {
   __typename: 'VideoSource';
   src: Scalars['String']['output'];
-  type?: Maybe<Scalars['String']['output']>;
-};
-
-export type Width = Dimension & Priceable & Selectable & {
-  __typename: 'Width';
-  addedPrice?: Maybe<PriceChange>;
-  selected: Scalars['Boolean']['output'];
-  unit: DimensionUnit;
-  value: Scalars['Int']['output'];
+  type: Scalars['String']['output'];
 };
 
 export type CategoryPageQueryVariables = Exact<{
   slug: Scalars['String']['input'];
+  productsPagination: Pagination;
 }>;
 
 
-export type CategoryPageQuery = { __typename: 'Query', category?: { __typename: 'Category', id: string, slug: string, name: string, description: string, products: Array<{ __typename: 'Product', id: string, slug: string, name: string, price: { __typename: 'Price', list: { __typename: 'Money', amount: number, currencyCode: CurrencyCode }, net: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }, discount?:
-        | { __typename: 'AbsolutePriceChange', amount: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }
-        | { __typename: 'PercentPriceChange', percent: number }
-       | null, systemGallery?: Array<{ __typename: 'GalleryItem', media:
-          | { __typename: 'Image', src: string, alt?: string | null }
-          | { __typename: 'Video' }
-         }> | null, recommendedColors: Array<{ __typename: 'ColorCombo', facadeColor: { __typename: 'Color', id: string, name: string, media:
-            | { __typename: 'Image', src: string, alt?: string | null }
-            | { __typename: 'Video' }
-           }, bodyColor: { __typename: 'Color', id: string, name: string, media:
-            | { __typename: 'Image', src: string, alt?: string | null }
-            | { __typename: 'Video' }
-           } }>, reviews?: Array<{ __typename: 'Review', rating: Rating }> | null, width: Array<{ __typename: 'Width', value: number, unit: DimensionUnit }>, height: Array<{ __typename: 'Height', value: number, unit: DimensionUnit }>, depth: Array<{ __typename: 'Depth', value: number, unit: DimensionUnit }> }> } | null };
-
-export type CategoriesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type CategoriesQuery = { __typename: 'Query', categories: Array<{ __typename: 'Category', id: string, name: string, slug: string, media?:
+export type CategoryPageQuery = { __typename: 'Query', category?: { __typename: 'Category', id: string, slug: string, name: string, description: string, media?:
       | { __typename: 'Image', src: string, alt?: string | null }
       | { __typename: 'Video' }
-     | null }> };
+     | null, products: { __typename: 'ProductConnection', edges: Array<{ __typename: 'ProductEdge', cursor: string, node: { __typename: 'Product', id: string, slug: string, name: string, price: { __typename: 'Price', list: { __typename: 'Money', amount: number, currencyCode: CurrencyCode }, net: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }, discount?:
+            | { __typename: 'AbsolutePriceChange', amount: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }
+            | { __typename: 'PercentPriceChange', percent: number }
+           | null, systemGallery: Array<{ __typename: 'GalleryItem', order: number, media:
+              | { __typename: 'Image', src: string, alt?: string | null }
+              | { __typename: 'Video', source: Array<{ __typename: 'VideoSource', src: string, type: string }> }
+             }>, attributes: Array<
+            | { __typename: 'BooleanAttribute', code: string, name: string }
+            | { __typename: 'ColorAttribute', code: string, name: string }
+            | { __typename: 'DimensionAttribute', code: string, name: string, options: Array<{ __typename: 'DimensionOption', value: string, unit: DimensionUnit, display: string, selected: boolean }> }
+            | { __typename: 'EquipmentAttribute', code: string, name: string }
+            | { __typename: 'MultiSelectAttribute', code: string, name: string }
+            | { __typename: 'NumberAttribute', value: number, unit: string, code: string, name: string }
+            | { __typename: 'SelectAttribute', code: string, name: string }
+            | { __typename: 'VariantAttribute', code: string, name: string }
+          >, reviews: Array<{ __typename: 'Review', id: string, userName: string, rating: Rating, date: any, text: string }> } }>, pageInfo: { __typename: 'PageInfo', hasNextPage: boolean, endCursor?: string | null, hasPreviousPage: boolean, startCursor?: string | null } } } | null };
+
+export type CategoriesQueryVariables = Exact<{
+  pagination?: InputMaybe<Pagination>;
+}>;
+
+
+export type CategoriesQuery = { __typename: 'Query', categories: { __typename: 'CategoryConnection', edges: Array<{ __typename: 'CategoryEdge', cursor: string, node: { __typename: 'Category', id: string, name: string, slug: string, description: string, media?:
+          | { __typename: 'Image', src: string, alt?: string | null }
+          | { __typename: 'Video', source: Array<{ __typename: 'VideoSource', src: string, type: string }> }
+         | null } }>, pageInfo: { __typename: 'PageInfo', hasNextPage: boolean, endCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type HomeCategoryQueryVariables = Exact<{
   slug: Scalars['String']['input'];
+  productsPagination: Pagination;
 }>;
 
 
-export type HomeCategoryQuery = { __typename: 'Query', category?: { __typename: 'Category', id: string, slug: string, name: string, products: Array<{ __typename: 'Product', id: string, slug: string, name: string, price: { __typename: 'Price', list: { __typename: 'Money', amount: number, currencyCode: CurrencyCode }, net: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }, discount?:
-        | { __typename: 'AbsolutePriceChange', amount: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }
-        | { __typename: 'PercentPriceChange', percent: number }
-       | null, systemGallery?: Array<{ __typename: 'GalleryItem', media:
-          | { __typename: 'Image', src: string, alt?: string | null }
-          | { __typename: 'Video', source: Array<{ __typename: 'VideoSource', src: string, type?: string | null }> }
-         }> | null, recommendedColors: Array<{ __typename: 'ColorCombo', facadeColor: { __typename: 'Color', id: string, name: string, media:
-            | { __typename: 'Image', src: string, alt?: string | null }
-            | { __typename: 'Video' }
-           }, bodyColor: { __typename: 'Color', id: string, name: string, media:
-            | { __typename: 'Image', src: string, alt?: string | null }
-            | { __typename: 'Video' }
-           } }>, reviews?: Array<{ __typename: 'Review', rating: Rating }> | null }> } | null };
+export type HomeCategoryQuery = { __typename: 'Query', category?: { __typename: 'Category', id: string, slug: string, name: string, description: string, media?:
+      | { __typename: 'Image', src: string, alt?: string | null }
+      | { __typename: 'Video' }
+     | null, products: { __typename: 'ProductConnection', edges: Array<{ __typename: 'ProductEdge', cursor: string, node: { __typename: 'Product', id: string, slug: string, name: string, price: { __typename: 'Price', list: { __typename: 'Money', amount: number, currencyCode: CurrencyCode }, net: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }, discount?:
+            | { __typename: 'AbsolutePriceChange', amount: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }
+            | { __typename: 'PercentPriceChange', percent: number }
+           | null, systemGallery: Array<{ __typename: 'GalleryItem', order: number, media:
+              | { __typename: 'Image', src: string, alt?: string | null }
+              | { __typename: 'Video', source: Array<{ __typename: 'VideoSource', src: string, type: string }> }
+             }>, reviews: Array<{ __typename: 'Review', rating: Rating }> } }>, pageInfo: { __typename: 'PageInfo', hasNextPage: boolean, endCursor?: string | null } } } | null };
 
 export type ProductQueryVariables = Exact<{
   slug: Scalars['String']['input'];
 }>;
 
 
-export type ProductQuery = { __typename: 'Query', productBySlug?: { __typename: 'Product', id: string, slug: string, name: string, description: string, price: { __typename: 'Price', list: { __typename: 'Money', amount: number, currencyCode: CurrencyCode }, net: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }, discount?:
+export type ProductQuery = { __typename: 'Query', productBySlug?: { __typename: 'Product', id: string, slug: string, name: string, info: string, description: string, warranty: string, partNumber: number, rating: number, price: { __typename: 'Price', list: { __typename: 'Money', amount: number, currencyCode: CurrencyCode }, net: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }, discount?:
       | { __typename: 'AbsolutePriceChange', amount: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }
       | { __typename: 'PercentPriceChange', percent: number }
-     | null, systemGallery?: Array<{ __typename: 'GalleryItem', media:
-        | { __typename: 'Image', src: string, alt?: string | null }
-        | { __typename: 'Video', source: Array<{ __typename: 'VideoSource', src: string, type?: string | null }> }
-       }> | null, recommendedColors: Array<{ __typename: 'ColorCombo', facadeColor: { __typename: 'Color', id: string, name: string, selected: boolean, media:
-          | { __typename: 'Image', src: string, alt?: string | null }
-          | { __typename: 'Video' }
-         }, bodyColor: { __typename: 'Color', id: string, name: string, selected: boolean, media:
-          | { __typename: 'Image', src: string, alt?: string | null }
-          | { __typename: 'Video' }
-         } }>, reviews?: Array<{ __typename: 'Review', rating: Rating }> | null, height: Array<{ __typename: 'Height', value: number, unit: DimensionUnit, selected: boolean }>, width: Array<{ __typename: 'Width', value: number, unit: DimensionUnit, selected: boolean }>, depth: Array<{ __typename: 'Depth', value: number, unit: DimensionUnit, selected: boolean }> } | null };
+     | null, systemGallery: Array<{ __typename: 'GalleryItem', order: number, media:
+        | { __typename: 'Image', src: string, alt?: string | null, width?: number | null, height?: number | null }
+        | { __typename: 'Video', source: Array<{ __typename: 'VideoSource', src: string, type: string }> }
+       }>, attributes: Array<
+      | { __typename: 'BooleanAttribute', code: string, name: string, required: boolean }
+      | { __typename: 'ColorAttribute', code: string, name: string, required: boolean, options: Array<{ __typename: 'ColorOption', id: string, value: string, display: string, selected: boolean, description: string, media:
+            | { __typename: 'Image', src: string, alt?: string | null }
+            | { __typename: 'Video' }
+          , addedPrice?:
+            | { __typename: 'AbsolutePriceChange', amount: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }
+            | { __typename: 'PercentPriceChange' }
+           | null }> }
+      | { __typename: 'DimensionAttribute', code: string, name: string, required: boolean, options: Array<{ __typename: 'DimensionOption', id: string, value: string, unit: DimensionUnit, display: string, selected: boolean }> }
+      | { __typename: 'EquipmentAttribute', code: string, name: string, required: boolean, options: Array<{ __typename: 'MultiSelectOption', id: string, value: string, display: string, quantity: number, minQuantity: number, maxQuantity: number, order: number, media:
+            | { __typename: 'Image', src: string, alt?: string | null }
+            | { __typename: 'Video' }
+          , addedPrice?:
+            | { __typename: 'AbsolutePriceChange', amount: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }
+            | { __typename: 'PercentPriceChange' }
+           | null }> }
+      | { __typename: 'MultiSelectAttribute', code: string, name: string, required: boolean }
+      | { __typename: 'NumberAttribute', value: number, unit: string, min: number, max: number, step: number, code: string, name: string, required: boolean }
+      | { __typename: 'SelectAttribute', code: string, name: string, required: boolean, options: Array<{ __typename: 'SelectOption', id: string, value: string, display: string, selected: boolean, description: string, media:
+            | { __typename: 'Image', src: string, alt?: string | null }
+            | { __typename: 'Video' }
+          , addedPrice?:
+            | { __typename: 'AbsolutePriceChange', amount: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }
+            | { __typename: 'PercentPriceChange' }
+           | null }> }
+      | { __typename: 'VariantAttribute', code: string, name: string, required: boolean, compartments: Array<{ __typename: 'Compartment', id: string, size: number, unit: string, order: number, options: Array<{ __typename: 'VariantOption', id: string, value: string, display: string, description: string, minQuantity: number, maxQuantity: number, quantity: number, media:
+              | { __typename: 'Image', src: string, alt?: string | null }
+              | { __typename: 'Video' }
+            , addedPrice:
+              | { __typename: 'AbsolutePriceChange', amount: { __typename: 'Money', amount: number, currencyCode: CurrencyCode } }
+              | { __typename: 'PercentPriceChange' }
+             }> }> }
+    >, reviews: Array<{ __typename: 'Review', id: string, userName: string, rating: Rating, date: any, text: string }>, questions: Array<{ __typename: 'Question', id: string, userName: string, rating?: Rating | null, date: any, text: string }> } | null };
 
 
-export const CategoryPageDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CategoryPage"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slug"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"category"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"slug"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slug"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"products"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"price"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"list"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}},{"kind":"Field","name":{"kind":"Name","value":"net"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"discount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AbsolutePriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PercentPriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"percent"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemGallery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"recommendedColors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"facadeColor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"bodyColor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"reviews"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rating"}}]}},{"kind":"Field","name":{"kind":"Name","value":"width"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}}]}},{"kind":"Field","name":{"kind":"Name","value":"height"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}}]}},{"kind":"Field","name":{"kind":"Name","value":"depth"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CategoryPageQuery, CategoryPageQueryVariables>;
-export const CategoriesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Categories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"categories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"slug"}}]}}]}}]} as unknown as DocumentNode<CategoriesQuery, CategoriesQueryVariables>;
-export const HomeCategoryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"HomeCategory"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slug"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"category"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"slug"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slug"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"products"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"price"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"list"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}},{"kind":"Field","name":{"kind":"Name","value":"net"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"discount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AbsolutePriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PercentPriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"percent"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemGallery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Video"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"source"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"type"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"recommendedColors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"facadeColor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"bodyColor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"reviews"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rating"}}]}}]}}]}}]}}]} as unknown as DocumentNode<HomeCategoryQuery, HomeCategoryQueryVariables>;
-export const ProductDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Product"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slug"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productBySlug"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"slug"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slug"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"price"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"list"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}},{"kind":"Field","name":{"kind":"Name","value":"net"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"discount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AbsolutePriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PercentPriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"percent"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemGallery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Video"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"source"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"type"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"recommendedColors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"facadeColor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"selected"}},{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"bodyColor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"selected"}},{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"reviews"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rating"}}]}},{"kind":"Field","name":{"kind":"Name","value":"height"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"selected"}}]}},{"kind":"Field","name":{"kind":"Name","value":"width"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"selected"}}]}},{"kind":"Field","name":{"kind":"Name","value":"depth"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"selected"}}]}}]}}]}}]} as unknown as DocumentNode<ProductQuery, ProductQueryVariables>;
+export const CategoryPageDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CategoryPage"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slug"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"productsPagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Pagination"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"category"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"slug"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slug"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"products"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"productsPagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"price"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"list"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}},{"kind":"Field","name":{"kind":"Name","value":"net"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"discount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AbsolutePriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PercentPriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"percent"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemGallery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Video"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"source"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"type"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"order"}}]}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"NumberAttribute"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"DimensionAttribute"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"options"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"display"}},{"kind":"Field","name":{"kind":"Name","value":"selected"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"reviews"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userName"}},{"kind":"Field","name":{"kind":"Name","value":"rating"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"text"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"cursor"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"endCursor"}},{"kind":"Field","name":{"kind":"Name","value":"hasPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"startCursor"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CategoryPageQuery, CategoryPageQueryVariables>;
+export const CategoriesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Categories"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"categories"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Video"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"source"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"type"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"cursor"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"endCursor"}},{"kind":"Field","name":{"kind":"Name","value":"hasPreviousPage"}}]}}]}}]}}]} as unknown as DocumentNode<CategoriesQuery, CategoriesQueryVariables>;
+export const HomeCategoryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"HomeCategory"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slug"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"productsPagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Pagination"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"category"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"slug"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slug"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"products"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"productsPagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"price"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"list"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}},{"kind":"Field","name":{"kind":"Name","value":"net"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"discount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AbsolutePriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PercentPriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"percent"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemGallery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Video"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"source"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"type"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"order"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reviews"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rating"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"cursor"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"endCursor"}}]}}]}}]}}]}}]} as unknown as DocumentNode<HomeCategoryQuery, HomeCategoryQueryVariables>;
+export const ProductDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Product"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slug"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productBySlug"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"slug"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slug"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"info"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"warranty"}},{"kind":"Field","name":{"kind":"Name","value":"partNumber"}},{"kind":"Field","name":{"kind":"Name","value":"rating"}},{"kind":"Field","name":{"kind":"Name","value":"price"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"list"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}},{"kind":"Field","name":{"kind":"Name","value":"net"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"discount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AbsolutePriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PercentPriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"percent"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"systemGallery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}},{"kind":"Field","name":{"kind":"Name","value":"width"}},{"kind":"Field","name":{"kind":"Name","value":"height"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Video"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"source"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"type"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"order"}}]}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"required"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"NumberAttribute"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"min"}},{"kind":"Field","name":{"kind":"Name","value":"max"}},{"kind":"Field","name":{"kind":"Name","value":"step"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"DimensionAttribute"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"options"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"display"}},{"kind":"Field","name":{"kind":"Name","value":"selected"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ColorAttribute"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"options"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"display"}},{"kind":"Field","name":{"kind":"Name","value":"selected"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"addedPrice"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AbsolutePriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"SelectAttribute"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"options"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"display"}},{"kind":"Field","name":{"kind":"Name","value":"selected"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"addedPrice"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AbsolutePriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"VariantAttribute"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"compartments"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"size"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"order"}},{"kind":"Field","name":{"kind":"Name","value":"options"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"display"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"minQuantity"}},{"kind":"Field","name":{"kind":"Name","value":"maxQuantity"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"addedPrice"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AbsolutePriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}}]}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"EquipmentAttribute"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"options"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"display"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"minQuantity"}},{"kind":"Field","name":{"kind":"Name","value":"maxQuantity"}},{"kind":"Field","name":{"kind":"Name","value":"media"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Image"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"alt"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"order"}},{"kind":"Field","name":{"kind":"Name","value":"addedPrice"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AbsolutePriceChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}}]}}]}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"reviews"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userName"}},{"kind":"Field","name":{"kind":"Name","value":"rating"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"text"}}]}},{"kind":"Field","name":{"kind":"Name","value":"questions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userName"}},{"kind":"Field","name":{"kind":"Name","value":"rating"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"text"}}]}}]}}]}}]} as unknown as DocumentNode<ProductQuery, ProductQueryVariables>;

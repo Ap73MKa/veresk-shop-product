@@ -20,6 +20,8 @@ const [useProvideSliderContext, useInjectSliderContext] = createInjectionState(
 
     const scrollToMain = (index: number) => {
       mainApi.value?.scrollTo(index)
+      const autoplayPlugin = mainApi.value?.plugins().autoplay
+      if (autoplayPlugin) autoplayPlugin.stop()
     }
 
     const scrollToThumb = (index: number) => {

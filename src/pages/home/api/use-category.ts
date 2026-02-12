@@ -2,76 +2,72 @@ import { useQuery } from "@tanstack/vue-query"
 import { graphql, useGraphQLClient } from "~/shared/api"
 
 const categoryQuery = graphql(`
-  query HomeCategory($slug: String!) {
+  query HomeCategory($slug: String!, $productsPagination: Pagination!) {
     category(slug: $slug) {
       id
       slug
       name
-      products {
-        id
-        slug
-        name
-        price {
-          list {
-            amount
-            currencyCode
-          }
-          net {
-            amount
-            currencyCode
-          }
+      description
+      media {
+        __typename
+        ... on Image {
+          src
+          alt
         }
-        discount {
-          __typename
-          ... on AbsolutePriceChange {
-            amount {
-              amount
-              currencyCode
-            }
-          }
-          ... on PercentPriceChange {
-            percent
-          }
-        }
-        systemGallery {
-          media {
-            __typename
-            ... on Image {
-              src
-              alt
-            }
-            ... on Video {
-              source {
-                src
-                type
-              }
-            }
-          }
-        }
-        recommendedColors {
-          facadeColor {
+      }
+      products(pagination: $productsPagination) {
+        edges {
+          node {
             id
+            slug
             name
-            media {
-              ... on Image {
-                src
-                alt
+            price {
+              list {
+                amount
+                currencyCode
+              }
+              net {
+                amount
+                currencyCode
               }
             }
-          }
-          bodyColor {
-            id
-            name
-            media {
-              ... on Image {
-                src
-                alt
+            discount {
+              __typename
+              ... on AbsolutePriceChange {
+                amount {
+                  amount
+                  currencyCode
+                }
+              }
+              ... on PercentPriceChange {
+                percent
               }
             }
+            systemGallery {
+              media {
+                __typename
+                ... on Image {
+                  src
+                  alt
+                }
+                ... on Video {
+                  source {
+                    src
+                    type
+                  }
+                }
+              }
+              order
+            }
+            reviews {
+              rating
+            }
           }
+          cursor
         }
-        reviews {
-          rating
+        pageInfo {
+          hasNextPage
+          endCursor
         }
       }
     }
@@ -84,7 +80,10 @@ export const useCategory = (slug: string) => {
   return useQuery({
     queryKey: ["category-lite", slug],
     queryFn: async () => {
-      const data = await client.request(categoryQuery, { slug })
+      const data = await client.request(categoryQuery, {
+        slug,
+        productsPagination: { limit: 12 }
+      })
       console.log(data)
       return data.category
     }

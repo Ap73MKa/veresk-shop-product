@@ -6,13 +6,13 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator
 } from "~/shared/ui/breadcrumb"
-import { useProductPage } from "../model/useProductPage"
+import { useProductPage } from "../model/use-product-page"
 
 const { data, isLoading } = useProductPage()
 </script>
 
 <template>
-  <Breadcrumb class="my-5">
+  <Breadcrumb class="mt-2 mb-6 hidden md:block">
     <BreadcrumbList
       class="scrollbar-none flex-nowrap overflow-auto px-4 whitespace-nowrap lg:px-10 2xl:px-20"
     >

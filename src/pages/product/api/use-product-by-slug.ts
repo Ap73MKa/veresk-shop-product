@@ -7,7 +7,11 @@ const productQuery = graphql(`
       id
       slug
       name
+      info
       description
+      warranty
+      partNumber
+      rating
       price {
         list {
           amount
@@ -19,6 +23,7 @@ const productQuery = graphql(`
         }
       }
       discount {
+        __typename
         ... on AbsolutePriceChange {
           amount {
             amount
@@ -35,6 +40,8 @@ const productQuery = graphql(`
           ... on Image {
             src
             alt
+            width
+            height
           }
           ... on Video {
             source {
@@ -43,50 +50,153 @@ const productQuery = graphql(`
             }
           }
         }
+        order
       }
-      recommendedColors {
-        facadeColor {
-          id
-          name
-          selected
-          media {
-            __typename
-            ... on Image {
-              src
-              alt
+      attributes {
+        __typename
+        code
+        name
+        required
+        ... on NumberAttribute {
+          value
+          unit
+          min
+          max
+          step
+        }
+        ... on DimensionAttribute {
+          options {
+            id
+            value
+            unit
+            display
+            selected
+          }
+        }
+        ... on ColorAttribute {
+          options {
+            id
+            value
+            display
+            selected
+            description
+            media {
+              __typename
+              ... on Image {
+                src
+                alt
+              }
+            }
+            addedPrice {
+              __typename
+              ... on AbsolutePriceChange {
+                amount {
+                  amount
+                  currencyCode
+                }
+              }
             }
           }
         }
-        bodyColor {
-          id
-          name
-          selected
-          media {
-            __typename
-            ... on Image {
-              src
-              alt
+        ... on SelectAttribute {
+          options {
+            id
+            value
+            display
+            selected
+            description
+            media {
+              __typename
+              ... on Image {
+                src
+                alt
+              }
+            }
+            addedPrice {
+              __typename
+              ... on AbsolutePriceChange {
+                amount {
+                  amount
+                  currencyCode
+                }
+              }
+            }
+          }
+        }
+        ... on VariantAttribute {
+          compartments {
+            id
+            size
+            unit
+            order
+            options {
+              id
+              value
+              display
+              description
+              minQuantity
+              maxQuantity
+              quantity
+              media {
+                __typename
+                ... on Image {
+                  src
+                  alt
+                }
+              }
+              addedPrice {
+                __typename
+                ... on AbsolutePriceChange {
+                  amount {
+                    amount
+                    currencyCode
+                  }
+                }
+              }
+            }
+          }
+        }
+        ... on EquipmentAttribute {
+          options {
+            id
+            value
+            display
+            quantity
+            minQuantity
+            maxQuantity
+            media {
+              __typename
+              ... on Image {
+                src
+                alt
+              }
+            }
+            order
+            addedPrice {
+              __typename
+              ... on AbsolutePriceChange {
+                amount {
+                  amount
+                  currencyCode
+                }
+              }
             }
           }
         }
       }
       reviews {
+        id
+        userName
         rating
+        date
+        text
       }
-      height {
-        value
-        unit
-        selected
-      }
-      width {
-        value
-        unit
-        selected
-      }
-      depth {
-        value
-        unit
-        selected
+      questions {
+        id
+        userName
+        rating
+        date
+        text
       }
     }
   }

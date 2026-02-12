@@ -30,10 +30,10 @@ const { data: category, isLoading } = useCategory(props.slug)
         </CarouselItem>
         <CarouselItem
           v-else
-          v-for="product in category.products"
+          v-for="product in category.products.edges"
           class="basis-full pl-10 md:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5"
         >
-          <CategoryItem :key="product.id" :product="product" />
+          <CategoryItem :key="product.node.id" :product="product.node" />
         </CarouselItem>
       </CarouselContent>
     </Carousel>

@@ -1,22 +1,20 @@
 <script setup lang="ts">
 import { useThrottleFn, watchOnce } from "@vueuse/core"
-import { ref, type HTMLAttributes } from "vue"
+import { type HTMLAttributes, ref } from "vue"
+import { cn } from "~/shared/lib/utils"
 import {
   Carousel,
   type CarouselApi,
   CarouselContent,
   CarouselItem
 } from "~/shared/ui/carousel"
-import { cn } from "~/shared/lib/utils"
 
 const props = defineProps<{
   images: { src: string; alt?: string }[]
   class?: HTMLAttributes["class"]
 }>()
 
-const emit = defineEmits<{
-  (e: "change", index: number): void
-}>()
+const emit = defineEmits<(e: "change", index: number) => void>()
 
 const carouselApi = ref<CarouselApi>()
 const currentIndex = ref(0)

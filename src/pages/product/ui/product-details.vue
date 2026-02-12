@@ -2,16 +2,13 @@
 import {
   HeartIcon,
   ChevronRightIcon,
-  ChevronsUpDownIcon,
-  PlusIcon,
   Share2Icon,
-  ShoppingBag,
+  ShoppingBagIcon,
   StarIcon,
   ChevronDownIcon
 } from "lucide-vue-next"
-import { ToggleGroupItem, ToggleGroupRoot } from "reka-ui"
 import { getAverageRating } from "~/entities/product/lib/rating"
-import { useProductPage } from "./../model/useProductPage"
+import { useProductPage } from "../model/use-product-page"
 import DeliveryModal from "./delivery-modal.vue"
 import PaymentModal from "./payment-modal.vue"
 import {
@@ -26,46 +23,80 @@ import {
   ProductSpecsAccordionItem,
   ProductSpecsAccordionTrigger
 } from "./product-specs-accordion"
-import { ScrollArea, ScrollBar } from "~/shared/ui/scroll-area"
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from "~/shared/ui/dialog"
+  ProductSelectMedia,
+  ProductSelectName,
+  ProductSelectSingleItem,
+  ProductSelectSingleList,
+  ProductSelectQuantitativeItem,
+  ProductSelectQuantitativeList,
+  ProductSelectQuantity
+} from "./product-select"
+import { Tabs, TabsList, TabsContent, TabsTrigger } from "~/shared/ui/tabs"
+import { Slider } from "~/shared/ui/slider"
+import { cn } from "~/shared/lib/utils"
+import { useProductForm } from "../model/use-product-form"
+import {
+  AccordionRoot,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent
+} from "reka-ui"
 
 const { data: product, isLoading } = useProductPage()
 
-const width = ref(undefined)
-const height = ref(undefined)
-const depth = ref(undefined)
-const facadeColorId = ref("")
-const bodyColorId = ref("")
+const form = useProductForm()
 
-// const specs = computed(() =>
-//   product.value ? resolveProductSpecs(product.value) : []
-// )
+const dimensionAttributes = computed(
+  () =>
+    product.value?.attributes.filter(
+      (attr) => attr.__typename === "DimensionAttribute"
+    ) ?? []
+)
 
-// const form = useForm({
-//   defaultValues: {},
-//   validators: {
-//     onSubmit: computed(() => buildProductSchema(specs.value, product.value))
-//       .value
-//   }
-// })
+const sortedWidth = computed(() =>
+  dimensionAttributes.value
+    .find((item) => item.code === "width")
+    ?.options.sort((a, b) => parseInt(a.value, 10) - parseInt(b.value, 10))
+)
 
-// watch(
-//   () => product.value,
-//   (p) => {
-//     if (!p) return
-//     form.reset(buildDefaultValues(specs.value, p))
-//     console.log(form.state)
-//   },
-//   { immediate: true }
-// )
+const sortedHeight = computed(() =>
+  dimensionAttributes.value
+    .find((item) => item.code === "height")
+    ?.options.sort((a, b) => parseInt(a.value, 10) - parseInt(b.value, 10))
+)
+
+const sortedDepth = computed(() =>
+  dimensionAttributes.value
+    .find((item) => item.code === "depth")
+    ?.options.sort((a, b) => parseInt(a.value, 10) - parseInt(b.value, 10))
+)
+
+const colorAttributes = computed(
+  () =>
+    product.value?.attributes.filter(
+      (attr) => attr.__typename === "ColorAttribute"
+    ) ?? []
+)
+
+const schemaAttribute = computed(() => {
+  const candidate = product.value?.attributes.find(
+    (attr) => attr.code === "schema"
+  )
+  return candidate?.__typename === "SelectAttribute" ? candidate : undefined
+})
+
+const equipmentAttribute = computed(() =>
+  product.value?.attributes.filter(
+    (attr) => attr.__typename === "EquipmentAttribute"
+  )
+)
+
+const variantAttribute = computed(() =>
+  product.value?.attributes.find(
+    (attr) => attr.__typename === "VariantAttribute"
+  )
+)
 
 const averageRating = computed(() =>
   getAverageRating(product.value?.reviews ?? [])
@@ -73,7 +104,16 @@ const averageRating = computed(() =>
 </script>
 
 <template>
-  <form id="product-details-form" class="w-full space-y-5 overflow-hidden">
+  <form
+    @submit="
+      (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        form.handleSubmit()
+      }
+    "
+    class="space-y-5 overflow-hidden px-4 md:px-0"
+  >
     <header class="space-y-1">
       <div class="text-base">
         <Skeleton v-if="isLoading || !product" class="h-4 w-32" />
@@ -170,184 +210,381 @@ const averageRating = computed(() =>
       <template v-else>
         <ProductSpecsAccordionItem
           value="dimensions"
-          v-if="product.width || product.height || product.depth"
+          v-if="dimensionAttributes"
+          class="px-0"
         >
-          <ProductSpecsAccordionTrigger>Размеры</ProductSpecsAccordionTrigger>
-          <ProductSpecsAccordionContent class="space-y-3">
-            <ProductDimensionRoot v-if="product.width" v-model="width">
-              <ProductDimensionTitle>Ширина</ProductDimensionTitle>
-              <ProductDimensionList>
-                <ProductDimensionItem
-                  v-for="(item, index) in product.width"
-                  :key="index"
-                  :value="item.value"
-                >
-                  {{ item.value }}
-                </ProductDimensionItem>
-              </ProductDimensionList>
-            </ProductDimensionRoot>
-            <ProductDimensionRoot v-if="product.height" v-model="height">
-              <ProductDimensionTitle>Высота</ProductDimensionTitle>
-              <ProductDimensionList>
-                <ProductDimensionItem
-                  v-for="(item, index) in product.height"
-                  :key="index"
-                  :value="item.value"
-                >
-                  {{ item.value }}
-                </ProductDimensionItem>
-              </ProductDimensionList>
-            </ProductDimensionRoot>
-            <ProductDimensionRoot v-if="product.depth" v-model="depth">
-              <ProductDimensionTitle>Глубина</ProductDimensionTitle>
-              <ProductDimensionList>
-                <ProductDimensionItem
-                  v-for="(item, index) in product.depth"
-                  :key="index"
-                  :value="item.value"
-                >
-                  {{ item.value }}
-                </ProductDimensionItem>
-              </ProductDimensionList>
-            </ProductDimensionRoot>
+          <ProductSpecsAccordionTrigger class="px-4">
+            Размеры
+          </ProductSpecsAccordionTrigger>
+          <ProductSpecsAccordionContent>
+            <div class="space-y-3">
+              <form.Field v-if="sortedWidth" name="dimensions.width">
+                <template v-slot="{ field }">
+                  <ProductDimensionRoot
+                    class="px-4"
+                    :model-value="field.state.value"
+                    @update:model-value="
+                      (value) => {
+                        if (typeof value !== 'string') return
+                        console.log('new value:', value)
+                        field.handleChange(value)
+                      }
+                    "
+                  >
+                    <ProductDimensionTitle>Ширина</ProductDimensionTitle>
+                    <ProductDimensionList
+                      class="grid grid-cols-6 sm:grid-cols-9 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9"
+                    >
+                      <ProductDimensionItem
+                        v-for="(item, index) in sortedWidth"
+                        :key="index"
+                        :value="item.id"
+                        class="w-full rounded-md"
+                      >
+                        {{ item.value }}
+                      </ProductDimensionItem>
+                    </ProductDimensionList>
+                  </ProductDimensionRoot>
+                </template>
+              </form.Field>
+
+              <form.Field v-if="sortedHeight" name="dimensions.height">
+                <template v-slot="{ field }">
+                  <ProductDimensionRoot
+                    class="px-4"
+                    :model-value="field.state.value"
+                    @update:model-value="
+                      (value) => {
+                        if (typeof value !== 'string') return
+                        console.log('new value:', value)
+                        field.handleChange(value)
+                      }
+                    "
+                  >
+                    <ProductDimensionTitle>Высота</ProductDimensionTitle>
+                    <ProductDimensionList>
+                      <ProductDimensionItem
+                        v-for="(item, index) in sortedHeight"
+                        :key="index"
+                        :value="item.id"
+                      >
+                        {{ item.value }}
+                      </ProductDimensionItem>
+                    </ProductDimensionList>
+                  </ProductDimensionRoot>
+                </template>
+              </form.Field>
+
+              <form.Field
+                v-if="sortedDepth"
+                name="dimensions.depth"
+                class="space-y-1.5"
+              >
+                <template v-slot="{ field }">
+                  <ProductDimensionTitle class="px-4">
+                    Глубина
+                  </ProductDimensionTitle>
+
+                  <div class="relative w-full px-3 pt-2">
+                    <div class="w-full px-1">
+                      <Slider
+                        :default-value="[0]"
+                        @update:model-value="
+                          (value) => {
+                            const valueIndex = value?.at(0)
+                            if (typeof valueIndex !== 'number') return
+                            const newValue = sortedDepth[valueIndex]
+                            if (newValue) field.handleChange(newValue.id)
+                          }
+                        "
+                        :max="sortedDepth.length - 1"
+                        :step="1"
+                      />
+                    </div>
+
+                    <div class="w-full px-3 pt-2 pb-10">
+                      <ul class="relative w-full">
+                        <li
+                          :class="
+                            cn(
+                              'absolute -translate-x-1/2 transition-all',
+                              sortedDepth[index]?.id === field.state.value
+                                ? 'text-sm font-bold'
+                                : 'text-xs text-muted-foreground'
+                            )
+                          "
+                          :style="{
+                            left: `${(index / (sortedDepth.length - 1)) * 100}%`
+                          }"
+                          v-for="(item, index) in sortedDepth"
+                          :key="index"
+                        >
+                          {{ item.value }}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </template>
+              </form.Field>
+            </div>
           </ProductSpecsAccordionContent>
         </ProductSpecsAccordionItem>
 
-        <ProductSpecsAccordionItem value="facadeColor" class="px-0">
+        <ProductSpecsAccordionItem
+          value="colors"
+          class="px-0"
+          v-if="colorAttributes.length"
+        >
           <ProductSpecsAccordionTrigger class="px-4">
-            Цвет
+            Цвета
           </ProductSpecsAccordionTrigger>
           <ProductSpecsAccordionContent class="pb-0">
-            <ProductDimensionTitle class="mt-2 px-4">
-              Цвет фасада
-            </ProductDimensionTitle>
-            <ToggleGroupRoot
-              class="my-2 flex flex-wrap px-2"
-              v-model="facadeColorId"
-              type="single"
+            <template
+              v-for="attribute in colorAttributes"
+              :key="attribute.code"
             >
-              <ToggleGroupItem
-                v-for="item in product.recommendedColors.map(
-                  (item) => item.facadeColor
-                )"
-                :value="item.id"
-                :key="item.id"
-                class="w-1/3 space-y-1.5 self-baseline rounded-sm border border-transparent p-2 text-left transition-colors hover:border-border data-[state=on]:border-primary/50 data-[state=on]:bg-secondary/25 sm:w-1/4 md:w-1/3 xl:w-1/4"
-              >
-                <div class="aspect-4/3 overflow-hidden rounded-[0.185rem]">
-                  <BaseImage
-                    :src="
-                      item.media.__typename === 'Image' ? item.media.src : ''
+              <form.Field :name="`colors.${attribute.code}`">
+                <template v-slot="{ field }">
+                  <ProductDimensionTitle class="mt-2 px-4">
+                    {{ attribute.name }}
+                  </ProductDimensionTitle>
+
+                  <ProductSelectSingleList
+                    :model-value="field.state.value"
+                    @update:model-value="
+                      (value) => {
+                        if (typeof value !== 'string') return
+                        console.log('new value:', value)
+                        field.handleChange(value)
+                      }
                     "
-                    :alt="item.name"
-                    class="size-full object-cover"
-                  />
-                </div>
-                <span class="text-sm">
-                  {{ item.name }}
-                </span>
-              </ToggleGroupItem>
-            </ToggleGroupRoot>
+                  >
+                    <ProductSelectSingleItem
+                      v-for="option in attribute.options"
+                      :value="option.id"
+                      :key="option.id"
+                    >
+                      <ProductSelectMedia>
+                        <BaseImage
+                          :src="
+                            option.media.__typename === 'Image'
+                              ? option.media.src
+                              : ''
+                          "
+                          :alt="option.display"
+                        />
+                      </ProductSelectMedia>
+
+                      <ProductSelectName>
+                        {{ option.display }}
+                      </ProductSelectName>
+                    </ProductSelectSingleItem>
+                  </ProductSelectSingleList>
+                </template>
+              </form.Field>
+            </template>
+          </ProductSpecsAccordionContent>
+        </ProductSpecsAccordionItem>
+
+        <ProductSpecsAccordionItem
+          value="schema"
+          v-if="schemaAttribute && variantAttribute"
+          class="px-0"
+        >
+          <ProductSpecsAccordionTrigger class="px-4">
+            Комплектация
+          </ProductSpecsAccordionTrigger>
+
+          <ProductSpecsAccordionContent class="space-y-3">
+            <ProductDimensionTitle class="px-4">
+              {{ schemaAttribute.name }}
+            </ProductDimensionTitle>
+
+            <form.Field name="schema">
+              <template v-slot="{ field }">
+                <ProductSelectSingleList
+                  :model-value="field.state.value"
+                  @update:model-value="
+                    (value) => {
+                      if (typeof value !== 'string') return
+                      console.log('new value:', value)
+                      field.handleChange(value)
+                    }
+                  "
+                >
+                  <ProductSelectSingleItem
+                    v-for="item in schemaAttribute.options"
+                    :value="item.id"
+                    :key="item.id"
+                  >
+                    <ProductSelectMedia>
+                      <BaseImage
+                        :src="
+                          item.media?.__typename === 'Image'
+                            ? item.media.src
+                            : ''
+                        "
+                        :alt="item.display"
+                      />
+                    </ProductSelectMedia>
+
+                    <ProductSelectName>
+                      {{ item.display }}
+                    </ProductSelectName>
+                  </ProductSelectSingleItem>
+                </ProductSelectSingleList>
+              </template>
+            </form.Field>
 
             <ProductDimensionTitle class="px-4">
-              Цвет корпуса
+              {{ variantAttribute.name }}
             </ProductDimensionTitle>
 
-            <ToggleGroupRoot
-              v-model="bodyColorId"
-              type="single"
-              class="mt-1 mb-2"
-            >
-              <ScrollArea
-                class="w-full whitespace-nowrap [&>div]:px-1.5 [&>div]:pb-3"
+            <Tabs defaultValue="compartment-1">
+              <div class="px-4">
+                <TabsList class="w-full">
+                  <TabsTrigger
+                    v-for="compartment in variantAttribute.compartments.sort(
+                      (a, b) => a.order - b.order
+                    )"
+                    :value="`compartment-${compartment.order}`"
+                    class="overflow-hidden"
+                  >
+                    <span class="truncate">Отделение</span>
+                    {{ compartment.order + 1 }}
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+
+              <TabsContent
+                v-for="compartment in variantAttribute.compartments.sort(
+                  (a, b) => a.order - b.order
+                )"
+                :value="`compartment-${compartment.order}`"
               >
-                <ToggleGroupItem
-                  v-for="item in product.recommendedColors.map(
-                    (item) => item.facadeColor
-                  )"
-                  :value="item.id"
-                  :key="item.id"
-                  class="w-28 space-y-1.5 rounded-sm border border-transparent p-2 text-left align-top transition-colors hover:border-border data-[state=on]:border-primary/50 data-[state=on]:bg-secondary/25 sm:w-36 md:w-24 lg:w-32"
-                >
-                  <div class="aspect-4/3 overflow-hidden rounded-[0.185rem]">
-                    <BaseImage
-                      :src="
-                        item.media.__typename === 'Image' ? item.media.src : ''
-                      "
-                      :alt="item.name"
-                      class="size-full object-cover"
+                <ProductSelectQuantitativeList>
+                  <ProductSelectQuantitativeItem
+                    v-for="option in compartment.options"
+                    :value="option.id"
+                    :key="option.id"
+                  >
+                    <ProductSelectMedia>
+                      <BaseImage
+                        :src="
+                          option.media.__typename === 'Image'
+                            ? option.media.src
+                            : ''
+                        "
+                        :alt="option.display"
+                        class="size-full object-cover"
+                      />
+                    </ProductSelectMedia>
+
+                    <ProductSelectName>
+                      {{ option.display }}
+                    </ProductSelectName>
+
+                    <ProductSelectQuantity
+                      :default-value="option.quantity"
+                      :min="option.minQuantity"
+                      :max="option.maxQuantity"
+                      class="mt-auto pt-1"
                     />
-                  </div>
-                  <span class="text-sm whitespace-normal">
-                    {{ item.name }}
-                  </span>
-                </ToggleGroupItem>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-            </ToggleGroupRoot>
+                  </ProductSelectQuantitativeItem>
+                </ProductSelectQuantitativeList>
+              </TabsContent>
+            </Tabs>
+          </ProductSpecsAccordionContent>
+        </ProductSpecsAccordionItem>
+
+        <ProductSpecsAccordionItem
+          value="equipment"
+          class="px-0"
+          v-if="equipmentAttribute"
+        >
+          <ProductSpecsAccordionTrigger class="px-4">
+            Опции
+          </ProductSpecsAccordionTrigger>
+          <ProductSpecsAccordionContent>
+            <AccordionRoot
+              type="multiple"
+              :default-value="
+                equipmentAttribute?.length ? [equipmentAttribute[0].code] : []
+              "
+              class="space-y-2"
+            >
+              <template
+                v-for="attribute in equipmentAttribute"
+                :key="attribute.code"
+              >
+                <AccordionItem :value="attribute.code">
+                  <AccordionTrigger
+                    class="inline-flex w-full items-center justify-between px-4"
+                  >
+                    <ProductDimensionTitle class="">
+                      {{ attribute.name }}
+                    </ProductDimensionTitle>
+                    <ChevronDownIcon class="size-4" />
+                  </AccordionTrigger>
+                  <AccordionContent
+                    class="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+                  >
+                    <ProductSelectQuantitativeList>
+                      <ProductSelectQuantitativeItem
+                        v-for="option in attribute.options"
+                        :value="option.id"
+                        :key="option.id"
+                      >
+                        <ProductSelectMedia>
+                          <BaseImage
+                            :src="
+                              option.media.__typename === 'Image'
+                                ? option.media.src
+                                : ''
+                            "
+                            :alt="option.display"
+                          />
+                        </ProductSelectMedia>
+
+                        <ProductSelectName>
+                          {{ option.display }}
+                        </ProductSelectName>
+
+                        <ProductSelectQuantity
+                          :default-value="option.quantity"
+                          :min="option.minQuantity"
+                          :max="option.maxQuantity"
+                          class="mt-auto pt-1"
+                        />
+                      </ProductSelectQuantitativeItem>
+                    </ProductSelectQuantitativeList>
+                  </AccordionContent>
+                </AccordionItem>
+              </template>
+            </AccordionRoot>
           </ProductSpecsAccordionContent>
         </ProductSpecsAccordionItem>
       </template>
-
-      <Dialog v-if="!isLoading && product">
-        <DialogTrigger as-child>
-          <button
-            type="button"
-            class="inline-flex w-full items-center justify-between rounded-md bg-secondary p-4 font-medium"
-          >
-            Комплектация
-            <ChevronsUpDownIcon class="size-4" />
-          </button>
-        </DialogTrigger>
-        <DialogContent class="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Выбор комплектации</DialogTitle>
-          </DialogHeader>
-          <p>Выбор комплектации</p>
-          <DialogFooter>
-            <DialogClose as-child>
-              <Button>Применить</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog v-if="!isLoading && product">
-        <DialogTrigger as-child>
-          <button
-            v-if="!isLoading && product"
-            type="button"
-            class="inline-flex w-full items-center justify-between rounded-md bg-secondary p-4 font-medium"
-          >
-            Опции
-            <ChevronsUpDownIcon class="size-4" />
-          </button>
-        </DialogTrigger>
-        <DialogContent class="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Выбор опций</DialogTitle>
-          </DialogHeader>
-          <p>Выбор опций</p>
-          <DialogFooter>
-            <DialogClose as-child>
-              <Button>Применить</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </ProductSpecsAccordion>
 
     <div
-      class="grid w-full grid-cols-[1.5fr_1fr] gap-3 overflow-hidden md:flex md:flex-col lg:grid lg:grid-cols-[1.5fr_1fr]"
+      class="hidden w-full grid-cols-[1.5fr_1fr] flex-col gap-3 overflow-hidden md:flex lg:grid lg:grid-cols-[1.5fr_1fr]"
     >
-      <Button
-        size="lg"
-        class="h-12 w-full bg-primary/95 uppercase hover:bg-primary/80"
-      >
-        <ShoppingBag class="h-5 stroke-2 md:hidden" />
-        <span class="md:hidden">В корзину</span>
-        <span class="hidden md:inline">Добавить в корзину</span>
-      </Button>
+      <form.Subscribe>
+        <template v-slot="{ canSubmit, isSubmitting }">
+          <Button
+            size="lg"
+            type="submit"
+            :disabled="!canSubmit || !product"
+            class="h-12 w-full bg-primary/95 uppercase hover:bg-primary/80"
+          >
+            <ShoppingBagIcon class="h-5 stroke-2 md:hidden" />
+            <span class="md:hidden">В корзину</span>
+            <span class="hidden md:inline">Добавить в корзину</span>
+          </Button>
+        </template>
+      </form.Subscribe>
+
       <Button size="lg" variant="outline" class="h-12 w-full uppercase">
         Купить в 1 клик
       </Button>
@@ -379,4 +616,28 @@ const averageRating = computed(() =>
       </button>
     </PaymentModal>
   </form>
+
+  <footer
+    class="fixed bottom-0 grid h-14 w-full grid-cols-2 border-t bg-background px-4 md:hidden"
+  >
+    <div class="flex items-center">
+      <div class="flex items-baseline gap-2">
+        <span class="text-xl font-semibold">
+          <Skeleton v-if="isLoading || !product" class="h-4 w-16" />
+          <span v-else>{{ product.price.list.amount }} ₽</span>
+        </span>
+        <span
+          v-if="product?.price.net.amount"
+          class="text-xs font-light text-muted-foreground line-through"
+        >
+          {{ product?.price.net.amount }} ₽
+        </span>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-2">
+      <Button size="sm">В корзину</Button>
+      <Button variant="outline" size="sm">Купить</Button>
+    </div>
+  </footer>
 </template>

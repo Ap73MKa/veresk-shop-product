@@ -46,7 +46,7 @@ const { data: category, isLoading } = useCategory(slug.value ?? "")
     </header>
 
     <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:px-5 xl:grid-cols-4 2xl:grid-cols-5 2xl:px-14"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:px-5 xl:grid-cols-4 2xl:grid-cols-5 2xl:px-14"
     >
       <div
         v-if="isLoading || !category?.products"
@@ -55,8 +55,8 @@ const { data: category, isLoading } = useCategory(slug.value ?? "")
       >
         <Skeleton class="size-full" />
       </div>
-      <div v-else v-for="product in category.products">
-        <CategoryItem :key="product.id" :product="product" />
+      <div v-else v-for="product in category.products.edges">
+        <CategoryItem :key="product.node.id" :product="product.node" />
       </div>
     </div>
   </main>

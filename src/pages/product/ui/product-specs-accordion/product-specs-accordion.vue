@@ -22,7 +22,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
 <template>
   <Accordion
     v-bind="forwarded"
-    :class="cn('w-full space-y-1', props.class)"
+    :class="cn('w-full space-y-2', props.class)"
     type="single"
   >
     <slot />

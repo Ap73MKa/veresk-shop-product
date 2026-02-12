@@ -16,10 +16,10 @@ const context = useSliderContext()
   <Carousel
     :class="cn('relative w-full overflow-hidden', props.class)"
     :opts="{ loop: true }"
-    :plugins="[Autoplay({ delay: 5000 })]"
+    :plugins="[Autoplay({ delay: 5000, stopOnInteraction: true })]"
     @init-api="context.registerMainApi"
   >
-    <CarouselContent class="ml-0 h-80 md:h-96 lg:h-125 2xl:h-150">
+    <CarouselContent class="ml-0 h-96 sm:h-125 md:h-96 lg:h-125 2xl:h-150">
       <slot />
     </CarouselContent>
   </Carousel>

@@ -3,16 +3,15 @@ import { Badge } from "~/shared/ui/badge"
 import { StarIcon } from "lucide-vue-next"
 import { Skeleton } from "~/shared/ui/skeleton"
 import { type HomeCategoryQuery } from "~/shared/api"
-import { ToggleProductToFavorite } from "~/features/favorite/toggle-product-to-favorite"
+import { ProductFavoriteButton } from "~/features/favorite/toggle-product-favorite"
 import CardImageContainer from "~/entities/product/ui/card/card-image-container.vue"
-import CardImageColors from "~/entities/product/ui/card/card-image-colors.vue"
 import CardContainer from "~/entities/product/ui/card/card-container.vue"
-import { formatCurrency } from "~/entities/lib/currency"
+import { formatCurrency } from "~/entities/product/lib/currency"
 import { BaseImage } from "~/shared/ui/base-image"
-import { ratingToNumber } from "~/entities/product/lib/rating-helpers"
+import { getAverageRating } from "~/entities/product/lib/rating"
 
 type Category = NonNullable<HomeCategoryQuery["category"]>
-type Product = Category["products"][number]
+type Product = Category["products"]["edges"][number]["node"]
 
 const props = defineProps<{ product: Product }>()
 const image = props.product.systemGallery?.flatMap((item) => {
@@ -43,14 +42,7 @@ const discountLabel = (() => {
 })()
 
 const reviews = props.product.reviews ?? []
-const averageRating =
-  reviews.length > 0
-    ? Math.round(
-        (reviews.reduce((sum, item) => sum + ratingToNumber[item.rating], 0) /
-          reviews.length) *
-          10
-      ) / 10
-    : 0
+const averageRating = computed(() => getAverageRating(reviews))
 </script>
 
 <template>
@@ -67,7 +59,7 @@ const averageRating =
 
         <Skeleton v-else class="size-full" />
 
-        <ToggleProductToFavorite
+        <ProductFavoriteButton
           class="absolute top-2 right-2"
           :product-id="props.product.id"
           variant="ghost"

@@ -1,19 +1,36 @@
 import { useQuery } from "@tanstack/vue-query"
 import { graphql, useGraphQLClient } from "~/shared/api"
 
-const categoryQuery = graphql(`
-  query Categories {
-    categories {
-      id
-      name
-      media {
-        __typename
-        ... on Image {
-          src
-          alt
+const categoriesQuery = graphql(`
+  query Categories($pagination: Pagination) {
+    categories(pagination: $pagination) {
+      edges {
+        node {
+          id
+          name
+          slug
+          description
+          media {
+            __typename
+            ... on Image {
+              src
+              alt
+            }
+            ... on Video {
+              source {
+                src
+                type
+              }
+            }
+          }
         }
+        cursor
       }
-      slug
+      pageInfo {
+        hasNextPage
+        endCursor
+        hasPreviousPage
+      }
     }
   }
 `)
@@ -24,7 +41,9 @@ export const useCategories = () => {
   return useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const data = await client.request(categoryQuery)
+      const data = await client.request(categoriesQuery, {
+        pagination: { limit: 50 }
+      })
       return data.categories
     }
   })

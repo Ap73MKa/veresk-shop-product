@@ -26,27 +26,33 @@ const { data: categories, isLoading } = useCategories()
         </CarouselItem>
         <CarouselItem
           v-else
-          v-for="category in categories"
+          v-for="category in categories.edges"
           class="w-full basis-3xs space-y-2 lg:basis-2xs"
         >
           <NuxtLink
-            :to="{ name: 'category-slug', params: { slug: category.slug } }"
+            :to="{
+              name: 'category-slug',
+              params: { slug: category.node.slug }
+            }"
             class="block aspect-3/4 w-full"
           >
             <img
-              v-if="category.media?.__typename === 'Image'"
-              :src="category.media.src"
-              :alt="category.media.alt ?? category.name"
+              v-if="category.node.media?.__typename === 'Image'"
+              :src="category.node.media.src"
+              :alt="category.node.media.alt ?? category.node.name"
               class="size-full bg-secondary object-cover"
             />
             <Skeleton v-else class="size-full" />
           </NuxtLink>
 
           <NuxtLink
-            :to="{ name: 'category-slug', params: { slug: category.slug } }"
+            :to="{
+              name: 'category-slug',
+              params: { slug: category.node.slug }
+            }"
             class="text-sm"
           >
-            {{ category.name }}
+            {{ category.node.name }}
           </NuxtLink>
         </CarouselItem>
       </CarouselContent>
